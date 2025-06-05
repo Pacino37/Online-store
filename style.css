@@ -1,45 +1,75 @@
+/* Reset and base */
 body {
   font-family: Arial, sans-serif;
-  background-color: #f2f2f2;
-  text-align: center;
-  margin-top: 50px;
-}
-body {
-  font-family: Arial, sans-serif;
-  background: #f5f5f5;
+  background-color: #f5f5f5;
   margin: 0;
   padding: 0;
+  text-align: center;
 }
 
+/* Sticky header styles */
 header {
   background: #333;
   color: white;
-  padding: 1rem;
+  padding: 1rem 0;
   text-align: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
-.products {
+/* Header link/logo styling */
+header a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+header a img {
+  height: 40px;
+  width: auto;
+}
+
+/* Product section grid */
+.products, #product-grid {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
   gap: 20px;
-  padding: 2rem;
+  padding: 100px 2rem 2rem; /* push down for sticky header */
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-.product {
+/* Individual product card */
+.product, .bg-white.p-4.rounded-lg.shadow-md.flex.flex-col {
   background: white;
   border-radius: 10px;
   padding: 1rem;
   width: 200px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
-.product img {
+.product img, .bg-white.p-4.rounded-lg.shadow-md.flex.flex-col img {
   max-width: 100%;
   border-radius: 5px;
+  height: 150px;
+  object-fit: cover;
 }
 
+/* Buttons */
 button {
   background: #007bff;
   color: white;
@@ -48,8 +78,41 @@ button {
   margin-top: 10px;
   border-radius: 5px;
   cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
 button:hover {
   background: #0056b3;
+}
+
+/* Shopping cart styling override */
+#wrapper {
+  max-width: 350px;
+  margin: 1rem auto;
+  background: white;
+  padding: 1rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+#cart-items > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+  padding: 0.5rem 0;
+}
+
+#cart-items button {
+  background: transparent;
+  color: #dc3545;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.9rem;
+  text-decoration: underline;
+}
+
+#cart-items button:hover {
+  color: #a71d2a;
 }
