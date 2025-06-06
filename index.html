@@ -132,7 +132,7 @@
     });
 
     // Stripe setup
-    const stripe = Stripe("pk_test_XXXXXXXXXXXXXXXXXXXXXXXX"); // Replace with your real public key
+    const stripe = Stripe("pk_test_51RWMZ0Qqk6nCKA6s7vfs81QCZTGJTbMft8fttS09StP3TymTUNtEkEgfTK8octPO1qxmn7OwE42H0xDGinr06bZJ00MLIsuHwQ"); // Replace with your real public key
     const elements = stripe.elements();
     const card = elements.create("card", { hidePostalCode: true });
     card.mount("#card-element");
@@ -179,6 +179,12 @@
         description: "Adjustable aluminum laptop stand.",
         image: "https://via.placeholder.com/200x150",
       },
+       {
+        id: 6,
+        name: "Bluetooth Speaker",
+        price: 1999,
+        description: "Bluetooth best quality sound.",
+        image: "https://via.placeholder.com/200x150",
     ];
 
     // Cart data and DOM refs
