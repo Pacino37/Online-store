@@ -64,24 +64,28 @@ document.addEventListener('DOMContentLoaded', () => {
     cardElement.mount("#payment-form");
   }
 
-  document.getElementById("checkout-btn").addEventListener("click", async () => {
+  async function handlePayment() {
     const amount = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
     if (amount === 0) {
       alert("Cart is empty.");
       return;
     }
 
-    const res = await fetch("http://localhost:4242/create-payment-intent", {
+    const response = await fetch("http://localhost:4242/create-payment-intent", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ amount })
     });
 
-    const data = await res.json();
-    const clientSecret = data.clientSecret;
+    const { clientSecret } = await response.json();
 
     const result = await stripe.confirmCardPayment(clientSecret, {
-      payment_method: { card: cardElement }
+      payment_method: {
+        card: cardElement,
+        billing_details: {
+          name: "Test User", // You can customize this with real user input
+        },
+      },
     });
 
     if (result.error) {
@@ -93,7 +97,9 @@ document.addEventListener('DOMContentLoaded', () => {
       cart = [];
       updateCart();
     }
-  });
+  }
+
+  document.getElementById("checkout-btn").addEventListener("click", handlePayment);
 
   renderProducts();
   updateCart();
