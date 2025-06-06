@@ -1,102 +1,56 @@
 <!DOCTYPE html>
-<html lang="en" >
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Online Store with Stripe Payment - Dark Mode</title>
+  <title>Online Store</title>
   <script src="https://js.stripe.com/v3/"></script>
-  <!-- Tailwind CSS with dark mode support -->
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
-  <!-- Your custom styles -->
-  <link rel="stylesheet" href="style.css" />
-  <style>
-    /* Override Tailwind dark mode background for body */
-    body {
-      transition: background-color 0.3s ease, color 0.3s ease;
-    }
-  </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
 
-  <!-- Sticky Navigation Bar -->
-  <header class="fixed top-0 left-0 w-full bg-gray-800 dark:bg-gray-900 text-white flex justify-between items-center px-6 py-3 shadow z-50">
-    <a href="#" class="flex items-center space-x-3">
+  <!-- Header -->
+  <header class="fixed top-0 left-0 w-full bg-gray-800 text-white flex justify-between items-center px-6 py-3 shadow z-50">
+    <div class="flex items-center space-x-3">
       <img src="images/logo.png" alt="Logo" class="h-10 w-10 object-contain" />
       <span class="text-xl font-semibold">My Online Store</span>
-    </a>
-    <button id="theme-toggle" aria-label="Toggle Dark Mode" 
-      class="bg-gray-700 hover:bg-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600 rounded px-3 py-1 text-sm transition">
-      Dark Mode
-    </button>
+    </div>
+    <button id="theme-toggle" class="bg-gray-700 hover:bg-gray-600 rounded px-3 py-1 text-sm">Dark Mode</button>
   </header>
 
-  <!-- Main content wrapper -->
-  <div class="pt-20 flex flex-col md:flex-row min-h-screen max-w-7xl mx-auto px-6">
-
-    <!-- Product Section -->
+  <!-- Main Content -->
+  <div class="pt-20 flex flex-col md:flex-row max-w-7xl mx-auto px-6 min-h-screen">
+    <!-- Products -->
     <main class="w-full md:w-3/4">
-      <h1 id="product-grid-title" class="text-3xl font-bold mb-4 text-left">Product Catalog</h1>
-      <input
-        id="search-input"
-        type="text"
-        placeholder="Search products..."
-        class="mb-6 w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
-      />
+      <h1 class="text-3xl font-bold mb-4">Product Catalog</h1>
+      <input id="search-input" type="text" placeholder="Search products..." class="mb-6 w-full px-4 py-2 border rounded-lg dark:bg-gray-800 dark:text-white" />
       <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
     </main>
 
-    <!-- Cart and Payment Section -->
-    <aside class="w-full md:w-1/4 bg-white dark:bg-gray-800 p-6 border-t md:border-t-0 md:border-l border-gray-200 dark:border-gray-700 shadow-lg sticky top-20 h-full overflow-auto">
+    <!-- Cart -->
+    <aside class="w-full md:w-1/4 bg-white dark:bg-gray-800 p-6 border-l border-gray-300 dark:border-gray-600 shadow-lg sticky top-20 h-full overflow-auto">
       <h2 class="text-2xl font-semibold mb-4">Shopping Cart</h2>
       <div id="cart-items" class="space-y-2 mb-4"></div>
       <p class="text-xl font-bold">Total: $<span id="cart-total">0.00</span></p>
-
-      <!-- Stripe Card Element -->
-      <div id="card-element" class="mb-4 p-2 border rounded dark:bg-gray-700 dark:border-gray-600"></div>
-      <div id="card-errors" role="alert" class="text-red-600 mb-4 min-h-[1.25rem]"></div>
-
-      <button id="checkout-btn" class="mt-4 w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded" disabled>Checkout</button>
-
+      <div id="card-element" class="my-4 p-2 border rounded dark:bg-gray-700"></div>
+      <div id="card-errors" class="text-red-500 text-sm h-5"></div>
+      <button id="checkout-btn" class="mt-4 w-full bg-green-600 text-white py-2 rounded" disabled>Checkout</button>
       <div id="payment-message" class="mt-4 text-center font-semibold"></div>
     </aside>
   </div>
 
   <script>
-    // Dark mode toggle script
-    const themeToggleBtn = document.getElementById('theme-toggle');
-    const htmlElement = document.documentElement;
-
-    // Load theme preference from localStorage
-    if (localStorage.getItem('theme') === 'dark' || 
-        (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-      htmlElement.classList.add('dark');
-      themeToggleBtn.textContent = 'Light Mode';
-    }
-
-    themeToggleBtn.addEventListener('click', () => {
-      if (htmlElement.classList.contains('dark')) {
-        htmlElement.classList.remove('dark');
-        themeToggleBtn.textContent = 'Dark Mode';
-        localStorage.setItem('theme', 'light');
-      } else {
-        htmlElement.classList.add('dark');
-        themeToggleBtn.textContent = 'Light Mode';
-        localStorage.setItem('theme', 'dark');
-      }
-    });
-
-    // Stripe and product/cart code (same as before)...
-    const stripe = Stripe("pk_test_51RWMZ0Qqk6nCKA6s7vfs81QCZTGJTbMft8fttS09StP3TymTUNtEkEgfTK8octPO1qxmn7OwE42H0xDGinr06bZJ00MLIsuHwQ");
+    const stripe = Stripe("pk_test_YOUR_PUBLISHABLE_KEY"); // Replace with your Stripe publishable key
+    const elements = stripe.elements();
+    const card = elements.create('card');
+    card.mount('#card-element');
 
     const products = [
-      { id: 1, name: "Wireless Headphones", price: 5999, description: "High-quality sound with noise cancellation.", image: "https://via.placeholder.com/200x150" },
-      { id: 2, name: "Smart Watch", price: 9999, description: "Track your fitness and notifications.", image: "https://via.placeholder.com/200x150" },
-      { id: 3, name: "Bluetooth Speaker", price: 3999, description: "Portable speaker with powerful sound.", image: "https://via.placeholder.com/200x150" },
-      { id: 4, name: "USB-C Charger", price: 1999, description: "Fast charging USB-C wall adapter.", image: "https://via.placeholder.com/200x150" },
-      { id: 5, name: "Laptop Stand", price: 2999, description: "Adjustable aluminum laptop stand.", image: "https://via.placeholder.com/200x150" }
+      { id: 1, name: "Wireless Headphones", price: 5999, description: "High-quality sound.", image: "https://via.placeholder.com/200x150" },
+      { id: 2, name: "Smart Watch", price: 9999, description: "Track your fitness.", image: "https://via.placeholder.com/200x150" },
+      { id: 3, name: "Bluetooth Speaker", price: 3999, description: "Portable speaker.", image: "https://via.placeholder.com/200x150" }
     ];
 
-    let cart = [];
     const productGrid = document.getElementById("product-grid");
     const cartItems = document.getElementById("cart-items");
     const cartTotal = document.getElementById("cart-total");
@@ -104,65 +58,23 @@
     const paymentMessage = document.getElementById("payment-message");
     const cardErrors = document.getElementById("card-errors");
 
-    // Initialize Stripe Elements
-    const elements = stripe.elements();
-    const card = elements.create('card', {hidePostalCode: true});
-    card.mount('#card-element');
+    let cart = [];
 
-    card.on('change', event => {
-      if (event.error) {
-        cardErrors.textContent = event.error.message;
-      } else {
-        cardErrors.textContent = '';
-      }
-    });
-
-    function renderProducts(productsToRender) {
+    function renderProducts(list) {
       productGrid.innerHTML = "";
-      productsToRender.forEach(product => {
+      list.forEach(product => {
         const cardDiv = document.createElement("div");
-        cardDiv.className = "bg-white dark:bg-gray-700 p-4 rounded-lg shadow-md flex flex-col";
+        cardDiv.className = "bg-white dark:bg-gray-700 p-4 rounded-lg shadow-md";
         cardDiv.innerHTML = `
           <img src="${product.image}" alt="${product.name}" class="w-full h-40 object-cover rounded mb-4" />
           <h3 class="text-xl font-semibold">${product.name}</h3>
-          <p class="text-gray-600 dark:text-gray-300 flex-grow">${product.description}</p>
-          <p class="mt-2 text-lg font-bold">$${(product.price/100).toFixed(2)}</p>
-          <button class="mt-4 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded cursor-pointer">Add to Cart</button>
+          <p>${product.description}</p>
+          <p class="mt-2 text-lg font-bold">$${(product.price / 100).toFixed(2)}</p>
+          <button class="mt-4 bg-blue-500 text-white px-4 py-2 rounded">Add to Cart</button>
         `;
         cardDiv.querySelector("button").addEventListener("click", () => addToCart(product));
         productGrid.appendChild(cardDiv);
       });
-    }
-
-    function updateCart() {
-      cartItems.innerHTML = "";
-      let total = 0;
-
-      if (cart.length === 0) {
-        cartItems.innerHTML = `<p class="text-gray-500 italic dark:text-gray-400">Your cart is empty.</p>`;
-      } else {
-        cart.forEach(item => {
-          const div = document.createElement("div");
-          div.className = "flex justify-between items-center border-b border-gray-200 dark:border-gray-600 pb-2";
-
-          div.innerHTML = `
-            <div>
-              <span class="font-medium">${item.name}</span><br>
-              <small>$${(item.price/100).toFixed(2)} x ${item.quantity}</small>
-            </div>
-            <button class="text-red-600 hover:underline dark:text-red-400">Remove</button>
-          `;
-          div.querySelector("button").addEventListener("click", () => removeFromCart(item.id));
-          cartItems.appendChild(div);
-
-          total += item.price * item.quantity;
-        });
-      }
-
-      cartTotal.textContent = (total / 100).toFixed(2);
-      checkoutBtn.disabled = total === 0;
-      paymentMessage.textContent = "";
-      cardErrors.textContent = '';
     }
 
     function addToCart(product) {
@@ -180,62 +92,75 @@
       updateCart();
     }
 
+    function updateCart() {
+      cartItems.innerHTML = "";
+      let total = 0;
+
+      if (cart.length === 0) {
+        cartItems.innerHTML = `<p class="text-gray-500 italic">Your cart is empty.</p>`;
+      } else {
+        cart.forEach(item => {
+          const div = document.createElement("div");
+          div.className = "flex justify-between items-center border-b pb-2";
+          div.innerHTML = `
+            <div><strong>${item.name}</strong><br><small>$${(item.price/100).toFixed(2)} x ${item.quantity}</small></div>
+            <button class="text-red-600">Remove</button>
+          `;
+          div.querySelector("button").addEventListener("click", () => removeFromCart(item.id));
+          cartItems.appendChild(div);
+          total += item.price * item.quantity;
+        });
+      }
+
+      cartTotal.textContent = (total / 100).toFixed(2);
+      checkoutBtn.disabled = total === 0;
+    }
+
     document.getElementById("search-input").addEventListener("input", e => {
       const term = e.target.value.toLowerCase();
-      const filtered = products.filter(p => p.name.toLowerCase().includes(term) || p.description.toLowerCase().includes(term));
+      const filtered = products.filter(p => p.name.toLowerCase().includes(term));
       renderProducts(filtered);
     });
 
     checkoutBtn.addEventListener("click", async () => {
       const amount = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-
       paymentMessage.textContent = "Processing payment...";
-      paymentMessage.className = "mt-4 text-center font-semibold text-blue-600";
-
       try {
-        // Note: Replace below URL with your backend create-payment-intent endpoint
-        const response = await fetch("https://your-backend-url.com/create-payment-intent", {
+        const res = await fetch("http://localhost:4242/create-payment-intent", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ amount })
         });
 
-        const data = await response.json();
+        const data = await res.json();
 
-        if (data.error) {
-          paymentMessage.textContent = data.error;
-          paymentMessage.className = "text-red-600 mt-4 font-semibold text-center";
-          return;
-        }
-
-        const clientSecret = data.clientSecret;
-
-        const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+        const { error, paymentIntent } = await stripe.confirmCardPayment(data.clientSecret, {
           payment_method: {
-            card: card,
+            card: card
           }
         });
 
         if (error) {
           paymentMessage.textContent = error.message;
-          paymentMessage.className = "text-red-600 mt-4 font-semibold text-center";
-        } else if (paymentIntent && paymentIntent.status === 'succeeded') {
-          paymentMessage.textContent = "Payment successful! Thank you for your purchase.";
-          paymentMessage.className = "text-green-600 mt-4 font-semibold text-center";
+        } else if (paymentIntent.status === "succeeded") {
+          paymentMessage.textContent = "Payment successful!";
           cart = [];
           updateCart();
           card.clear();
         }
       } catch (err) {
-        paymentMessage.textContent = "Payment failed: " + err.message;
-        paymentMessage.className = "text-red-600 mt-4 font-semibold text-center";
+        paymentMessage.textContent = "Error: " + err.message;
       }
     });
 
-    // Initial render
+    // Dark Mode Toggle
+    const toggleBtn = document.getElementById("theme-toggle");
+    toggleBtn.addEventListener("click", () => {
+      document.documentElement.classList.toggle("dark");
+    });
+
     renderProducts(products);
     updateCart();
   </script>
-
 </body>
 </html>
